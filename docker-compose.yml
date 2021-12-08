@@ -1,0 +1,30 @@
+version: "2.4"
+
+services:
+  php:
+    image: gte451f/mq-app:7.4nx
+    platform: linux/amd64
+    volumes:
+      - .:/var/www:delegated
+      - ./docker/php/cli/xdebug.ini:/etc/php/7.4/mods-available/xdebug.ini
+      - ./docker/php/cli/php.ini:/etc/php/7.4/cli/php.ini
+      - ./docker/nginx/default:/etc/nginx/sites-available/default
+      - ./docker/.bashrc:/root/.bashrcdocker
+    ports:
+      - ${HTTP_PUBLISHED_PORT:-80}:80
+    env_file:
+      - ./docker/php/php.env
+    links:
+      - db
+  db:
+    image: mysql:5.7
+    platform: linux/amd64
+    volumes:
+      - ./docker/mysql/data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    ports:
+      - ${MYSQL_PUBLISHED_PORT:-3306}:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
